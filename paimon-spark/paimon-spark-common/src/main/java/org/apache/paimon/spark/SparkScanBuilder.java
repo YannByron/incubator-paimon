@@ -99,7 +99,7 @@ public class SparkScanBuilder
 
     @Override
     public Scan build() {
-        return new SparkScan(
+        return new PaimonScan(
                 table,
                 table.newReadBuilder().withFilter(predicates).withProjection(projectedFields));
     }

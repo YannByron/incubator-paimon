@@ -25,6 +25,58 @@ class DDLTest extends PaimonSparkTestBase {
 
   import testImplicits._
 
+  test("xxx") {
+    Seq((1L, "x1", "2023"), (2L, "x2", "2023"))
+      .toDF("a", "b", "pt")
+      .createOrReplaceTempView("source")
+
+    spark.sql("""
+                |CREATE TABLE t1 (id Long, name STRING, pt STRING) partitioned by (pt)
+                |""".stripMargin)
+
+    spark.sql("""
+                |INSERT INTO t1 VALUES (1L, "a", "2023"), (3L, "c", "2023"), (5, "e", "2025")
+                |""".stripMargin)
+
+    spark
+      .sql("""
+             |SELECT * FROM source join t1
+             |ON source.pt = t1.pt and source.pt = '2023'
+             |""".stripMargin)
+      .explain(true)
+  }
+
+  test("xxx22") {
+    Seq((1L, "x1", "2023"), (2L, "x2", "2023"), (3L, "x3", "2025"))
+      .toDF("a", "b", "pt")
+      .createOrReplaceTempView("source")
+
+    spark.sql("""
+                |CREATE TABLE t1 (id Long, name STRING, pt STRING) partitioned by (pt)
+                |""".stripMargin)
+
+    spark.sql(
+      """
+        |INSERT INTO t1 VALUES (1L, "a", "2023"), (3L, "c", "2023"), (5, "e", "2025"), (7, "g", "2027")
+        |""".stripMargin)
+
+//    spark
+//      .sql("""
+//             |SELECT * FROM source join t1
+//             |ON source.pt = t1.pt and source.a >= 3
+//             |where t1.id >= 3
+//             |""".stripMargin)
+//      .explain(true)
+
+    spark
+      .sql("""
+             |SELECT * FROM source join t1
+             |ON source.pt = t1.pt and source.a >= 3
+             |where t1.id >= 3
+             |""".stripMargin)
+      .show
+  }
+
   test("Paimon: Create Table As Select") {
     Seq((1L, "x1", "2023"), (2L, "x2", "2023"))
       .toDF("a", "b", "pt")
