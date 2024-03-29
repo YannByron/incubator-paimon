@@ -20,7 +20,7 @@ package org.apache.paimon.table.sink;
 
 import org.apache.paimon.io.CompactIncrement;
 import org.apache.paimon.io.IndexIncrement;
-import org.apache.paimon.io.NewFilesIncrement;
+import org.apache.paimon.io.DataIncrement;
 
 import org.junit.jupiter.api.Test;
 
@@ -39,13 +39,13 @@ public class CommitMessageSerializerTest {
     @Test
     public void test() throws IOException {
         CommitMessageSerializer serializer = new CommitMessageSerializer();
-        NewFilesIncrement newFilesIncrement = randomNewFilesIncrement();
+        DataIncrement dataIncrement = randomNewFilesIncrement();
         CompactIncrement compactIncrement = randomCompactIncrement();
         IndexIncrement indexIncrement =
                 new IndexIncrement(Arrays.asList(randomIndexFile(), randomIndexFile()));
         CommitMessageImpl committable =
                 new CommitMessageImpl(
-                        row(0), 1, newFilesIncrement, compactIncrement, indexIncrement);
+                        row(0), 1, dataIncrement, compactIncrement, indexIncrement);
         CommitMessageImpl newCommittable =
                 (CommitMessageImpl) serializer.deserialize(2, serializer.serialize(committable));
         assertThat(newCommittable.compactIncrement()).isEqualTo(committable.compactIncrement());
